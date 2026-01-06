@@ -43,6 +43,7 @@ function TrainingPageContent() {
     handleVideoCompleted,
     stopSession,
     getMediaUrl,
+    revokeMediaUrl,
     getNextMediaItem,
   } = useTrainingSession(
     includeVideos,

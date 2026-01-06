@@ -330,6 +330,9 @@ export function useTrainingSession(
     if (currentState.totalResponses > 0) {
       await saveSessionStats(currentState)
     }
+
+    // Clean up all object URLs when session stops
+    mediaRepository.current.revokeAllMediaUrls()
   }, [state, saveSessionStats])
 
   useEffect(() => {
@@ -339,6 +342,8 @@ export function useTrainingSession(
       if (timerRef.current) {
         clearInterval(timerRef.current)
       }
+      // Clean up all object URLs on unmount
+      mediaRepository.current.revokeAllMediaUrls()
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []) // Only run once on mount
@@ -350,6 +355,7 @@ export function useTrainingSession(
     handleVideoCompleted,
     stopSession,
     getMediaUrl: (mediaItem: MediaItem) => mediaRepository.current.getMediaUrl(mediaItem),
+    revokeMediaUrl: (mediaItem: MediaItem) => mediaRepository.current.revokeMediaUrl(mediaItem),
     getNextMediaItem,
   }
 }

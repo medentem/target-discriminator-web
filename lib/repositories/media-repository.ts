@@ -4,6 +4,9 @@ import { IndexedDBService } from "@/lib/storage/indexed-db"
 import { BUILT_IN_MEDIA } from "@/lib/data/media-manifest-generated"
 
 export class MediaRepository {
+  // Cache object URLs to prevent creating duplicates and causing flickering
+  private objectUrlCache = new Map<string, string>()
+
   async getMediaItems(
     includeVideos: boolean,
     includePhotos: boolean,
@@ -72,9 +75,16 @@ export class MediaRepository {
 
   async getMediaUrl(mediaItem: MediaItem): Promise<string> {
     if (mediaItem.path.startsWith("indexeddb://")) {
+      // Check cache first to avoid creating duplicate object URLs
+      if (this.objectUrlCache.has(mediaItem.path)) {
+        return this.objectUrlCache.get(mediaItem.path)!
+      }
+
       const file = await IndexedDBService.getMediaFile(mediaItem.path)
       if (file) {
-        return URL.createObjectURL(file)
+        const objectUrl = URL.createObjectURL(file)
+        this.objectUrlCache.set(mediaItem.path, objectUrl)
+        return objectUrl
       }
       throw new Error("Failed to load user media file")
     }
@@ -84,6 +94,25 @@ export class MediaRepository {
       return `/${mediaItem.path}`
     }
     return mediaItem.path
+  }
+
+  // Clean up object URLs for a specific media item
+  revokeMediaUrl(mediaItem: MediaItem): void {
+    if (mediaItem.path.startsWith("indexeddb://")) {
+      const cachedUrl = this.objectUrlCache.get(mediaItem.path)
+      if (cachedUrl) {
+        URL.revokeObjectURL(cachedUrl)
+        this.objectUrlCache.delete(mediaItem.path)
+      }
+    }
+  }
+
+  // Clean up all cached object URLs
+  revokeAllMediaUrls(): void {
+    for (const url of this.objectUrlCache.values()) {
+      URL.revokeObjectURL(url)
+    }
+    this.objectUrlCache.clear()
   }
 }
 
