@@ -22,6 +22,7 @@ function TrainingPageContent() {
   const [mediaUrl, setMediaUrl] = useState<string | null>(null)
   const [tapIndicators, setTapIndicators] = useState<Array<{ id: number; x: number; y: number }>>([])
   const tapIndicatorIdRef = useRef(0)
+  const autoAdvanceTimerRef = useRef<NodeJS.Timeout | null>(null)
 
   const includeVideos = searchParams.get("videos") === "true"
   const includePhotos = searchParams.get("photos") === "true"
@@ -61,16 +62,26 @@ function TrainingPageContent() {
 
   // Auto-advance after feedback is shown
   useEffect(() => {
-    if (state.showFeedback && state.lastResult) {
-      const timer = setTimeout(() => {
-        handleFeedbackShown()
-      }, 2500) // Auto-advance after 2.5 seconds
+    // Clear any existing timer
+    if (autoAdvanceTimerRef.current) {
+      clearTimeout(autoAdvanceTimerRef.current)
+      autoAdvanceTimerRef.current = null
+    }
 
-      return () => {
-        clearTimeout(timer)
+    if (state.showFeedback && state.lastResult && !state.isSessionComplete) {
+      autoAdvanceTimerRef.current = setTimeout(() => {
+        handleFeedbackShown()
+        autoAdvanceTimerRef.current = null
+      }, 2500) // Auto-advance after 2.5 seconds
+    }
+
+    return () => {
+      if (autoAdvanceTimerRef.current) {
+        clearTimeout(autoAdvanceTimerRef.current)
+        autoAdvanceTimerRef.current = null
       }
     }
-  }, [state.showFeedback, state.lastResult, handleFeedbackShown])
+  }, [state.showFeedback, state.isSessionComplete, handleFeedbackShown])
 
   const handleTap = (x: number, y: number) => {
     // Only show tap indicator when media is active and waiting for response
@@ -126,14 +137,6 @@ function TrainingPageContent() {
         </div>
       </div>
 
-      {/* Feedback Banner */}
-      {state.showFeedback && state.lastResult && (
-        <FeedbackOverlay
-          result={state.lastResult}
-          onAnimationComplete={handleFeedbackShown}
-        />
-      )}
-
       {/* Media Display */}
       <div
         ref={gestureRef}
@@ -154,6 +157,14 @@ function TrainingPageContent() {
             onComplete={() => handleTapIndicatorComplete(indicator.id)}
           />
         ))}
+
+        {/* Feedback Banner - Overlay */}
+        {state.showFeedback && state.lastResult && (
+          <FeedbackOverlay
+            result={state.lastResult}
+            onAnimationComplete={handleFeedbackShown}
+          />
+        )}
       </div>
 
       {/* Instructions */}
