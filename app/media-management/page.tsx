@@ -9,9 +9,10 @@ import { MediaItem } from "@/lib/models/media-item"
 import { MediaType, ThreatType } from "@/lib/models/types"
 import { UserMediaRepository } from "@/lib/repositories/user-media-repository"
 import { IndexedDBService } from "@/lib/storage/indexed-db"
+import { AgeVerificationGuard } from "@/components/age-verification-guard"
 import Image from "next/image"
 
-export default function MediaManagementPage() {
+function MediaManagementPageContent() {
   const router = useRouter()
   const [mediaItems, setMediaItems] = useState<MediaItem[]>([])
   const [isLoading, setIsLoading] = useState(true)
@@ -246,6 +247,14 @@ export default function MediaManagementPage() {
         </CardContent>
       </Card>
     </div>
+  )
+}
+
+export default function MediaManagementPage() {
+  return (
+    <AgeVerificationGuard>
+      <MediaManagementPageContent />
+    </AgeVerificationGuard>
   )
 }
 

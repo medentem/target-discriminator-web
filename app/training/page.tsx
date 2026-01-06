@@ -10,6 +10,7 @@ import { TapIndicator } from "@/components/training/tap-indicator"
 import { UserResponse, MediaType } from "@/lib/models/types"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { AgeVerificationGuard } from "@/components/age-verification-guard"
 
 function formatTime(seconds: number): string {
   const mins = Math.floor(seconds / 60)
@@ -275,12 +276,14 @@ function TrainingPageContent() {
 
 export default function TrainingPage() {
   return (
-    <Suspense fallback={
-      <div className="flex min-h-screen items-center justify-center bg-black text-white">
-        <p>Loading training session...</p>
-      </div>
-    }>
-      <TrainingPageContent />
-    </Suspense>
+    <AgeVerificationGuard>
+      <Suspense fallback={
+        <div className="flex min-h-screen items-center justify-center bg-black text-white">
+          <p>Loading training session...</p>
+        </div>
+      }>
+        <TrainingPageContent />
+      </Suspense>
+    </AgeVerificationGuard>
   )
 }

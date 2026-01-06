@@ -8,9 +8,10 @@ import { Switch } from "@/components/ui/switch"
 import { Slider } from "@/components/ui/slider"
 import { SessionConfig } from "@/lib/models/session-config"
 import { isValidSessionConfig } from "@/lib/models/session-config"
+import { AgeVerificationGuard } from "@/components/age-verification-guard"
 import Link from "next/link"
 
-export default function SessionConfigPage() {
+function SessionConfigPageContent() {
   const router = useRouter()
   const [includeVideos, setIncludeVideos] = useState(true)
   const [includePhotos, setIncludePhotos] = useState(true)
@@ -112,6 +113,14 @@ export default function SessionConfigPage() {
         </CardContent>
       </Card>
     </div>
+  )
+}
+
+export default function SessionConfigPage() {
+  return (
+    <AgeVerificationGuard>
+      <SessionConfigPageContent />
+    </AgeVerificationGuard>
   )
 }
 

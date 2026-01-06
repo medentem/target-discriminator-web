@@ -2,6 +2,7 @@ import { SessionStats } from "@/lib/models/session-stats"
 
 const PREFS_NAME = "target_discriminator"
 const KEY_STATS = "session_stats"
+const KEY_AGE_VERIFIED = "age_verified"
 
 export class LocalStorageService {
   private static getStorage(): Storage | null {
@@ -46,6 +47,32 @@ export class LocalStorageService {
 
   static getRecentSessionStats(limit: number = 10): SessionStats[] {
     return this.getAllSessionStats().slice(0, limit)
+  }
+
+  static setAgeVerified(verified: boolean): void {
+    const storage = this.getStorage()
+    if (!storage) return
+
+    try {
+      storage.setItem(KEY_AGE_VERIFIED, JSON.stringify(verified))
+    } catch (e) {
+      console.error("Failed to save age verification status:", e)
+    }
+  }
+
+  static isAgeVerified(): boolean {
+    const storage = this.getStorage()
+    if (!storage) return false
+
+    try {
+      const jsonString = storage.getItem(KEY_AGE_VERIFIED)
+      if (!jsonString) return false
+      
+      return JSON.parse(jsonString) === true
+    } catch (e) {
+      console.error("Failed to load age verification status:", e)
+      return false
+    }
   }
 }
 
