@@ -154,7 +154,7 @@ export default function PrivacyPolicyPage() {
             </p>
             <ul className="list-disc pl-6 space-y-1">
               <li>Data stored locally in your browser (localStorage, IndexedDB) is subject to your 
-                  browser's security settings</li>
+                  browser&apos;s security settings</li>
               <li>No method of transmission over the Internet or electronic storage is 100% secure</li>
               <li>While we strive to use commercially acceptable means to protect your information, we 
                   cannot guarantee absolute security</li>
@@ -170,9 +170,9 @@ export default function PrivacyPolicyPage() {
             </p>
             <ul className="list-disc pl-6 space-y-1">
               <li><strong>Clear Browser Data:</strong> You can clear all locally stored data through your 
-                  browser's settings (localStorage and IndexedDB)</li>
+                  browser&apos;s settings (localStorage and IndexedDB)</li>
               <li><strong>Session Statistics:</strong> Session statistics are stored locally and can be 
-                  cleared by clearing your browser's localStorage</li>
+                  cleared by clearing your browser&apos;s localStorage</li>
               <li><strong>User Media:</strong> User-uploaded media can be deleted through the Media 
                   Management page or by clearing IndexedDB data</li>
             </ul>
@@ -184,7 +184,7 @@ export default function PrivacyPolicyPage() {
             </p>
             <ul className="list-disc pl-6 space-y-1">
               <li>Using browser extensions that block analytics scripts</li>
-              <li>Configuring your browser's "Do Not Track" setting</li>
+              <li>Configuring your browser&apos;s &quot;Do Not Track&quot; setting</li>
               <li>Using privacy-focused browsers or browser settings</li>
             </ul>
 
@@ -196,14 +196,14 @@ export default function PrivacyPolicyPage() {
             <ul className="list-disc pl-6 space-y-1">
               <li>The right to access your personal data</li>
               <li>The right to rectification of inaccurate data</li>
-              <li>The right to erasure ("right to be forgotten")</li>
+              <li>The right to erasure (&quot;right to be forgotten&quot;)</li>
               <li>The right to restrict processing</li>
               <li>The right to data portability</li>
               <li>The right to object to processing</li>
             </ul>
             <p>
               To exercise these rights, please contact us using the information provided in the 
-              "Contact Us" section below.
+              &quot;Contact Us&quot; section below.
             </p>
 
             <h3 className="text-lg font-semibold mt-4 mb-2">7.4 CCPA Rights (California Users)</h3>
@@ -219,12 +219,12 @@ export default function PrivacyPolicyPage() {
             </ul>
             <p>
               We do not sell personal information. To exercise your CCPA rights, please contact us using 
-              the information provided in the "Contact Us" section below.
+              the information provided in the &quot;Contact Us&quot; section below.
             </p>
           </section>
 
           <section>
-            <h2 className="text-xl font-semibold mt-6 mb-3">8. Children's Privacy</h2>
+            <h2 className="text-xl font-semibold mt-6 mb-3">8. Children&apos;s Privacy</h2>
             <p>
               Our Service is not intended for individuals under the age of 18. We require age verification 
               before allowing access to the Service. We do not knowingly collect personal information from 
@@ -238,12 +238,12 @@ export default function PrivacyPolicyPage() {
             <p>
               <strong>Local Data:</strong> Data stored locally in your browser (localStorage, IndexedDB) 
               will persist until you clear your browser data or uninstall the application. You can delete 
-              this data at any time through your browser settings or the application's interface.
+              this data at any time through your browser settings or the application&apos;s interface.
             </p>
             <p>
               <strong>Analytics Data:</strong> Analytics and performance data collected by Vercel are 
-              retained according to Vercel's data retention policies. For specific retention periods, 
-              please refer to Vercel's privacy documentation.
+              retained according to Vercel&apos;s data retention policies. For specific retention periods, 
+              please refer to Vercel&apos;s privacy documentation.
             </p>
           </section>
 
@@ -251,7 +251,7 @@ export default function PrivacyPolicyPage() {
             <h2 className="text-xl font-semibold mt-6 mb-3">10. Changes to This Privacy Policy</h2>
             <p>
               We may update our Privacy Policy from time to time. We will notify you of any changes by 
-              posting the new Privacy Policy on this page and updating the "Last updated" date at the top 
+              posting the new Privacy Policy on this page and updating the &quot;Last updated&quot; date at the top 
               of this policy.
             </p>
             <p>
