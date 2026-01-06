@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { useAgeVerification } from "@/lib/hooks/use-age-verification"
+import Link from "next/link"
 
 const MONTHS = [
   { value: 1, label: "January" },
@@ -73,6 +74,10 @@ export default function AgeVerificationPage() {
             This application is designed for law enforcement, military, and private citizens
             to train threat identification skills. You must be 18 years or older to use this
             application. THE CONTENT IS GRAPHIC AND MAY BE DISTURBING TO SOME USERS.
+            <br />
+            <Link href="/privacy" className="text-primary underline hover:no-underline text-xs mt-2 inline-block">
+              View Privacy Policy
+            </Link>
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
