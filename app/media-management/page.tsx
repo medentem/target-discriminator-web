@@ -4,6 +4,7 @@ import { useState, useEffect, useRef } from "react"
 import { useRouter } from "next/navigation"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
+import { Dialog, DialogContent, DialogFooter } from "@/components/ui/dialog"
 import { MediaItem } from "@/lib/models/media-item"
 import { MediaType, ThreatType } from "@/lib/models/types"
 import { UserMediaRepository } from "@/lib/repositories/user-media-repository"
@@ -19,6 +20,10 @@ export default function MediaManagementPage() {
   const [selectedThreatType, setSelectedThreatType] = useState<ThreatType | "ALL">("ALL")
   const fileInputRef = useRef<HTMLInputElement>(null)
   const repository = useRef(new UserMediaRepository())
+  const [showThreatDialog, setShowThreatDialog] = useState(false)
+  const [pendingFile, setPendingFile] = useState<File | null>(null)
+  const [pendingMediaType, setPendingMediaType] = useState<MediaType | null>(null)
+  const [selectedThreatTypeForUpload, setSelectedThreatTypeForUpload] = useState<ThreatType>(ThreatType.THREAT)
 
   const loadMedia = async () => {
     setIsLoading(true)
@@ -37,30 +42,51 @@ export default function MediaManagementPage() {
     loadMedia()
   }, [])
 
-  const handleFileSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files
     if (!files || files.length === 0) return
 
-    // For now, we'll need to ask user for type and threat classification
-    // In a full implementation, you'd have a dialog for this
     const file = files[0]
     const isVideo = file.type.startsWith("video/")
     const mediaType = isVideo ? MediaType.VIDEO : MediaType.PHOTO
 
-    // Default to THREAT for now - in production, show a dialog
-    const threatType = ThreatType.THREAT
-
-    try {
-      await repository.current.saveUserMedia(file, mediaType, threatType)
-      await loadMedia()
-    } catch (e) {
-      setError(`Failed to import media: ${e instanceof Error ? e.message : "Unknown error"}`)
-    }
+    // Store the file and show dialog for threat type selection
+    setPendingFile(file)
+    setPendingMediaType(mediaType)
+    setSelectedThreatTypeForUpload(ThreatType.THREAT) // Default selection
+    setShowThreatDialog(true)
 
     // Reset input
     if (fileInputRef.current) {
       fileInputRef.current.value = ""
     }
+  }
+
+  const handleConfirmUpload = async () => {
+    if (!pendingFile || !pendingMediaType) return
+
+    try {
+      await repository.current.saveUserMedia(
+        pendingFile,
+        pendingMediaType,
+        selectedThreatTypeForUpload
+      )
+      await loadMedia()
+      setShowThreatDialog(false)
+      setPendingFile(null)
+      setPendingMediaType(null)
+    } catch (e) {
+      setError(`Failed to import media: ${e instanceof Error ? e.message : "Unknown error"}`)
+      setShowThreatDialog(false)
+      setPendingFile(null)
+      setPendingMediaType(null)
+    }
+  }
+
+  const handleCancelUpload = () => {
+    setShowThreatDialog(false)
+    setPendingFile(null)
+    setPendingMediaType(null)
   }
 
   const handleDelete = async (mediaItem: MediaItem) => {
@@ -148,6 +174,56 @@ export default function MediaManagementPage() {
               {error}
             </div>
           )}
+
+          {/* Threat Type Selection Dialog */}
+          <Dialog open={showThreatDialog} onOpenChange={setShowThreatDialog}>
+            <DialogContent
+              title="Classify Media"
+              description={`Please indicate whether this ${pendingMediaType?.toLowerCase()} is a threat or non-threat.`}
+            >
+              <div className="space-y-4">
+                <div className="space-y-2">
+                  <label className="text-sm font-medium">Threat Classification:</label>
+                  <div className="flex gap-4">
+                    <label className="flex cursor-pointer items-center gap-2 rounded-md border p-3 hover:bg-accent">
+                      <input
+                        type="radio"
+                        name="threatType"
+                        value={ThreatType.THREAT}
+                        checked={selectedThreatTypeForUpload === ThreatType.THREAT}
+                        onChange={(e) =>
+                          setSelectedThreatTypeForUpload(e.target.value as ThreatType)
+                        }
+                        className="h-4 w-4"
+                      />
+                      <span className="font-medium text-destructive">Threat</span>
+                    </label>
+                    <label className="flex cursor-pointer items-center gap-2 rounded-md border p-3 hover:bg-accent">
+                      <input
+                        type="radio"
+                        name="threatType"
+                        value={ThreatType.NON_THREAT}
+                        checked={selectedThreatTypeForUpload === ThreatType.NON_THREAT}
+                        onChange={(e) =>
+                          setSelectedThreatTypeForUpload(e.target.value as ThreatType)
+                        }
+                        className="h-4 w-4"
+                      />
+                      <span className="font-medium text-green-600">Non-Threat</span>
+                    </label>
+                  </div>
+                </div>
+              </div>
+              <DialogFooter>
+                <Button variant="outline" onClick={handleCancelUpload}>
+                  Cancel
+                </Button>
+                <Button onClick={handleConfirmUpload}>
+                  Import Media
+                </Button>
+              </DialogFooter>
+            </DialogContent>
+          </Dialog>
 
           {/* Media Grid */}
           {isLoading ? (

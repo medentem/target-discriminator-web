@@ -14,7 +14,7 @@ export default function SessionConfigPage() {
   const router = useRouter()
   const [includeVideos, setIncludeVideos] = useState(true)
   const [includePhotos, setIncludePhotos] = useState(true)
-  const [durationMinutes, setDurationMinutes] = useState(5)
+  const [durationMinutes, setDurationMinutes] = useState(1)
 
   const config: SessionConfig = {
     includeVideos,
