@@ -59,7 +59,8 @@ export function useTrainingSession(
     isCorrect: boolean,
     userResponse: UserResponse,
     actualThreatType: ThreatType,
-    mediaType: MediaType
+    mediaType: MediaType,
+    startTime: number | null
   ): number | null => {
     if (!isCorrect) return null
 
@@ -71,11 +72,30 @@ export function useTrainingSession(
 
     if (!isThreatTap && !isNonThreatPhotoSwipe) return null
 
-    const startTime = currentMediaStartTime.current
-    if (!startTime) return null
+    if (!startTime) {
+      console.warn("calculateReactionTime: startTime is null", {
+        isCorrect,
+        userResponse,
+        actualThreatType,
+        mediaType,
+      })
+      return null
+    }
 
     const reactionTime = Date.now() - startTime
-    return reactionTime > 0 ? reactionTime : null
+    if (reactionTime <= 0) {
+      console.warn("calculateReactionTime: reactionTime <= 0", {
+        reactionTime,
+        startTime,
+        now: Date.now(),
+        isCorrect,
+        userResponse,
+        actualThreatType,
+        mediaType,
+      })
+      return null
+    }
+    return reactionTime
   }, [])
 
   const getNextMediaItem = useCallback((): MediaItem | null => {
@@ -128,6 +148,9 @@ export function useTrainingSession(
 
   const handleUserResponse = useCallback(
     (userResponse: UserResponse) => {
+      // Capture start time before state update to prevent race conditions
+      const startTimeSnapshot = currentMediaStartTime.current
+      
       setState((prev) => {
         if (prev.hasResponded || !prev.currentMedia) return prev
 
@@ -140,7 +163,8 @@ export function useTrainingSession(
           isCorrect,
           userResponse,
           currentMedia.threatType,
-          currentMedia.type
+          currentMedia.type,
+          startTimeSnapshot
         )
 
         const result: ResponseResult = {
