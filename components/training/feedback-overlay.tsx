@@ -23,7 +23,7 @@ export function FeedbackOverlay({ result, onAnimationComplete }: FeedbackOverlay
       className="absolute top-0 left-0 right-0 z-50 flex items-center justify-center p-4"
     >
       <div
-        className={`w-full max-w-2xl rounded-lg p-6 text-center shadow-lg backdrop-blur-sm opacity-50 ${
+        className={`w-full max-w-2xl rounded-lg p-6 text-center shadow-lg backdrop-blur-sm opacity-80 ${
           isCorrect ? "bg-green-600/90" : "bg-red-600/90"
         }`}
       >
