@@ -23,6 +23,7 @@ function TrainingPageContent() {
   const [tapIndicators, setTapIndicators] = useState<Array<{ id: number; x: number; y: number }>>([])
   const tapIndicatorIdRef = useRef(0)
   const autoAdvanceTimerRef = useRef<NodeJS.Timeout | null>(null)
+  const handleFeedbackShownRef = useRef(handleFeedbackShown)
 
   const includeVideos = searchParams.get("videos") === "true"
   const includePhotos = searchParams.get("photos") === "true"
@@ -60,6 +61,11 @@ function TrainingPageContent() {
     }
   }, [state.currentMedia, getMediaUrl])
 
+  // Keep the ref updated with the latest callback
+  useEffect(() => {
+    handleFeedbackShownRef.current = handleFeedbackShown
+  }, [handleFeedbackShown])
+
   // Auto-advance after feedback is shown
   useEffect(() => {
     // Clear any existing timer
@@ -70,9 +76,9 @@ function TrainingPageContent() {
 
     if (state.showFeedback && state.lastResult && !state.isSessionComplete) {
       autoAdvanceTimerRef.current = setTimeout(() => {
-        handleFeedbackShown()
+        handleFeedbackShownRef.current()
         autoAdvanceTimerRef.current = null
-      }, 2500) // Auto-advance after 2.5 seconds
+      }, 1000) // Auto-advance after 1 second
     }
 
     return () => {
@@ -81,7 +87,7 @@ function TrainingPageContent() {
         autoAdvanceTimerRef.current = null
       }
     }
-  }, [state.showFeedback, state.isSessionComplete, handleFeedbackShown])
+  }, [state.showFeedback, state.isSessionComplete])
 
   const handleTap = (x: number, y: number) => {
     // Only show tap indicator when media is active and waiting for response
