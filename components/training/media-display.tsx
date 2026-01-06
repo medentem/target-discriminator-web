@@ -55,7 +55,7 @@ export function MediaDisplay({ mediaItem, mediaUrl, nextMediaUrl, onVideoComplet
         <video
           ref={preloadVideoRef}
           src={nextMediaUrl || undefined}
-          preload="auto"
+          preload="metadata"
           className="hidden"
           playsInline
           muted
