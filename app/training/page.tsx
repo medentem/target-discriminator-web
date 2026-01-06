@@ -7,8 +7,9 @@ import { useTouchGestures } from "@/lib/hooks/use-touch-gestures"
 import { MediaDisplay } from "@/components/training/media-display"
 import { FeedbackOverlay } from "@/components/training/feedback-overlay"
 import { TapIndicator } from "@/components/training/tap-indicator"
-import { UserResponse } from "@/lib/models/types"
+import { UserResponse, MediaType } from "@/lib/models/types"
 import { Button } from "@/components/ui/button"
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 
 function formatTime(seconds: number): string {
   const mins = Math.floor(seconds / 60)
@@ -20,6 +21,7 @@ function TrainingPageContent() {
   const searchParams = useSearchParams()
   const router = useRouter()
   const [mediaUrl, setMediaUrl] = useState<string | null>(null)
+  const [nextMediaUrl, setNextMediaUrl] = useState<string | null>(null)
   const [tapIndicators, setTapIndicators] = useState<Array<{ id: number; x: number; y: number }>>([])
   const tapIndicatorIdRef = useRef(0)
   const autoAdvanceTimerRef = useRef<NodeJS.Timeout | null>(null)
@@ -40,6 +42,7 @@ function TrainingPageContent() {
     handleVideoCompleted,
     stopSession,
     getMediaUrl,
+    getNextMediaItem,
   } = useTrainingSession(
     includeVideos,
     includePhotos,
@@ -60,6 +63,30 @@ function TrainingPageContent() {
       setMediaUrl(null)
     }
   }, [state.currentMedia, getMediaUrl])
+
+  // Preload next video URL when current media is shown
+  useEffect(() => {
+    if (!state.isSessionComplete && state.currentMedia) {
+      // Preload the next video after a short delay to let current media start loading
+      const preloadTimer = setTimeout(() => {
+        const nextMedia = getNextMediaItem()
+        if (nextMedia && nextMedia.type === MediaType.VIDEO) {
+          getMediaUrl(nextMedia)
+            .then((url) => setNextMediaUrl(url))
+            .catch((e) => {
+              console.error("Failed to preload next media:", e)
+              setNextMediaUrl(null)
+            })
+        } else {
+          setNextMediaUrl(null)
+        }
+      }, 500) // Small delay to prioritize current media loading
+
+      return () => clearTimeout(preloadTimer)
+    } else {
+      setNextMediaUrl(null)
+    }
+  }, [state.currentMedia, state.isSessionComplete, getNextMediaItem, getMediaUrl])
 
   // Keep the ref updated with the latest callback
   useEffect(() => {
@@ -128,6 +155,16 @@ function TrainingPageContent() {
     router.push("/session-config")
   }
 
+  const handleContinueAfterStats = () => {
+    router.push("/session-config")
+  }
+
+  const getAverageReactionTime = (): number | null => {
+    if (state.reactionTimesMs.length === 0) return null
+    const sum = state.reactionTimesMs.reduce((a, b) => a + b, 0)
+    return Math.round(sum / state.reactionTimesMs.length)
+  }
+
   return (
     <div className="fixed inset-0 flex flex-col bg-black">
       {/* Header */}
@@ -145,6 +182,49 @@ function TrainingPageContent() {
         </div>
       </div>
 
+      {/* Stats Display Overlay */}
+      {state.isSessionComplete && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/90 p-4">
+          <Card className="w-full max-w-md">
+            <CardHeader>
+              <CardTitle className="text-2xl text-center">Session Complete!</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="space-y-2 text-center">
+                <div className="text-lg">
+                  <span className="font-semibold">Correct:</span> {state.correctResponses}
+                </div>
+                <div className="text-lg">
+                  <span className="font-semibold">Incorrect:</span> {state.totalResponses - state.correctResponses}
+                </div>
+                <div className="text-lg">
+                  <span className="font-semibold">Total:</span> {state.totalResponses}
+                </div>
+                <div className="text-lg">
+                  <span className="font-semibold">Accuracy:</span>{" "}
+                  {state.totalResponses > 0
+                    ? `${Math.round((state.correctResponses / state.totalResponses) * 100)}%`
+                    : "0%"}
+                </div>
+                {getAverageReactionTime() !== null && (
+                  <div className="text-lg">
+                    <span className="font-semibold">Average Response Time:</span>{" "}
+                    {(getAverageReactionTime()! / 1000).toFixed(2)}s
+                  </div>
+                )}
+              </div>
+              <Button
+                onClick={handleContinueAfterStats}
+                className="w-full"
+                size="lg"
+              >
+                Continue
+              </Button>
+            </CardContent>
+          </Card>
+        </div>
+      )}
+
       {/* Media Display */}
       <div
         ref={gestureRef}
@@ -153,6 +233,7 @@ function TrainingPageContent() {
         <MediaDisplay
           mediaItem={state.currentMedia}
           mediaUrl={mediaUrl}
+          nextMediaUrl={nextMediaUrl}
           onVideoCompleted={handleVideoCompleted}
         />
 
@@ -167,7 +248,7 @@ function TrainingPageContent() {
         ))}
 
         {/* Feedback Banner - Overlay */}
-        {state.showFeedback && state.lastResult && (
+        {state.showFeedback && state.lastResult && !state.isSessionComplete && (
           <FeedbackOverlay
             result={state.lastResult}
             onAnimationComplete={handleFeedbackShown}
@@ -176,16 +257,18 @@ function TrainingPageContent() {
       </div>
 
       {/* Instructions */}
-      <div className={`bg-black/80 p-4 text-center text-white transition-opacity ${
-        state.showFeedback ? "opacity-0 pointer-events-none" : "opacity-100"
-      }`}>
-        <p className="text-sm">
-          Tap for Threat | Swipe for Non-Threat
-        </p>
-        <p className="mt-1 text-xs text-white/60">
-          (Space/Enter = Tap, Arrow Keys = Swipe)
-        </p>
-      </div>
+      {!state.isSessionComplete && (
+        <div className={`bg-black/80 p-4 text-center text-white transition-opacity ${
+          state.showFeedback ? "opacity-0 pointer-events-none" : "opacity-100"
+        }`}>
+          <p className="text-sm">
+            Tap for Threat | Swipe for Non-Threat
+          </p>
+          <p className="mt-1 text-xs text-white/60">
+            (Space/Enter = Tap, Arrow Keys = Swipe)
+          </p>
+        </div>
+      )}
     </div>
   )
 }

@@ -16,7 +16,7 @@ export function FeedbackOverlay({ result, onAnimationComplete }: FeedbackOverlay
   const threatLabel =
     result.actualThreatType === ThreatType.THREAT ? "Threat" : "Non-Threat"
   const responseLabel =
-    result.userResponse === UserResponse.TAP ? "Tap (Threat)" : "Swipe (Non-Threat)"
+    result.userResponse === UserResponse.TAP ? "Threat" : "Non-Threat"
 
   return (
     <div

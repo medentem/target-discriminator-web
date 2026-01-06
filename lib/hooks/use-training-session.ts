@@ -78,6 +78,25 @@ export function useTrainingSession(
     return reactionTime > 0 ? reactionTime : null
   }, [])
 
+  const getNextMediaItem = useCallback((): MediaItem | null => {
+    if (availableMedia.current.length === 0) return null
+
+    const unshownMedia = availableMedia.current.filter(
+      (m) => !shownMediaPaths.current.has(m.path)
+    )
+
+    const mediaToChooseFrom =
+      unshownMedia.length === 0
+        ? availableMedia.current
+        : unshownMedia
+
+    if (mediaToChooseFrom.length === 0) return null
+
+    // Pick a random one (same logic as showNextMedia but without side effects)
+    const randomIndex = Math.floor(Math.random() * mediaToChooseFrom.length)
+    return mediaToChooseFrom[randomIndex]
+  }, [])
+
   const showNextMedia = useCallback(() => {
     if (isShowingNextMedia.current || availableMedia.current.length === 0) return
 
@@ -266,10 +285,6 @@ export function useTrainingSession(
             saveSessionStats(finalState)
             return finalState
           })
-
-          setTimeout(() => {
-            onSessionComplete()
-          }, 2000)
         }
       }, 1000)
 
@@ -311,6 +326,7 @@ export function useTrainingSession(
     handleVideoCompleted,
     stopSession,
     getMediaUrl: (mediaItem: MediaItem) => mediaRepository.current.getMediaUrl(mediaItem),
+    getNextMediaItem,
   }
 }
 

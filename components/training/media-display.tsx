@@ -8,12 +8,27 @@ import Image from "next/image"
 interface MediaDisplayProps {
   mediaItem: MediaItem | null
   mediaUrl: string | null
+  nextMediaUrl: string | null
   onVideoCompleted: () => void
 }
 
-export function MediaDisplay({ mediaItem, mediaUrl, onVideoCompleted }: MediaDisplayProps) {
+export function MediaDisplay({ mediaItem, mediaUrl, nextMediaUrl, onVideoCompleted }: MediaDisplayProps) {
   const videoRef = useRef<HTMLVideoElement>(null)
+  const preloadVideoRef = useRef<HTMLVideoElement>(null)
   const [imageError, setImageError] = useState(false)
+
+  // Preload next video
+  useEffect(() => {
+    if (preloadVideoRef.current) {
+      const preloadVideo = preloadVideoRef.current
+      if (nextMediaUrl) {
+        preloadVideo.src = nextMediaUrl
+        preloadVideo.load()
+      } else {
+        preloadVideo.src = ""
+      }
+    }
+  }, [nextMediaUrl])
 
   useEffect(() => {
     if (mediaItem?.type === MediaType.VIDEO && videoRef.current && mediaUrl) {
@@ -35,16 +50,28 @@ export function MediaDisplay({ mediaItem, mediaUrl, onVideoCompleted }: MediaDis
 
   if (mediaItem.type === MediaType.VIDEO) {
     return (
-      <div className="flex h-full w-full items-center justify-center bg-black">
+      <>
+        {/* Hidden preload video for next media */}
         <video
-          ref={videoRef}
-          src={mediaUrl}
-          className="max-h-full max-w-full object-contain"
-          onEnded={onVideoCompleted}
+          ref={preloadVideoRef}
+          src={nextMediaUrl || undefined}
+          preload="auto"
+          className="hidden"
           playsInline
           muted
         />
-      </div>
+        <div className="flex h-full w-full items-center justify-center bg-black">
+          <video
+            ref={videoRef}
+            src={mediaUrl}
+            className="max-h-full max-w-full object-contain"
+            onEnded={onVideoCompleted}
+            playsInline
+            muted
+            preload="auto"
+          />
+        </div>
+      </>
     )
   }
 
