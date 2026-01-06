@@ -20,25 +20,22 @@ export function FeedbackOverlay({ result, onAnimationComplete }: FeedbackOverlay
 
   return (
     <div
-      className="absolute inset-0 z-50 flex items-center justify-center bg-black/80"
-      onClick={onAnimationComplete}
-      onAnimationEnd={onAnimationComplete}
+      className="relative z-50 flex items-center justify-center p-4"
     >
       <div
-        className={`rounded-lg p-8 text-center ${
+        className={`w-full max-w-2xl rounded-lg p-6 text-center shadow-lg ${
           isCorrect ? "bg-green-600" : "bg-red-600"
         }`}
       >
-        <p className="text-4xl font-bold text-white">{message}</p>
-        <p className="mt-4 text-xl text-white">
+        <p className="text-3xl font-bold text-white">{message}</p>
+        <p className="mt-2 text-lg text-white">
           Actual: {threatLabel} | Your Response: {responseLabel}
         </p>
         {result.reactionTimeMs !== null && (
-          <p className="mt-2 text-sm text-white/80">
+          <p className="mt-1 text-sm text-white/80">
             Reaction Time: {(result.reactionTimeMs / 1000).toFixed(2)}s
           </p>
         )}
-        <p className="mt-4 text-sm text-white/60">Tap anywhere to continue</p>
       </div>
     </div>
   )

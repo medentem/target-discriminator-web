@@ -59,16 +59,32 @@ function TrainingPageContent() {
     }
   }, [state.currentMedia, getMediaUrl])
 
-  const handleTap = (x: number, y: number) => {
-    // Convert viewport coordinates to container-relative coordinates
-    if (gestureRef.current) {
-      const rect = gestureRef.current.getBoundingClientRect()
-      const relativeX = x - rect.left
-      const relativeY = y - rect.top
+  // Auto-advance after feedback is shown
+  useEffect(() => {
+    if (state.showFeedback && state.lastResult) {
+      const timer = setTimeout(() => {
+        handleFeedbackShown()
+      }, 2500) // Auto-advance after 2.5 seconds
 
-      // Show tap indicator
-      const id = tapIndicatorIdRef.current++
-      setTapIndicators((prev) => [...prev, { id, x: relativeX, y: relativeY }])
+      return () => {
+        clearTimeout(timer)
+      }
+    }
+  }, [state.showFeedback, state.lastResult, handleFeedbackShown])
+
+  const handleTap = (x: number, y: number) => {
+    // Only show tap indicator when media is active and waiting for response
+    if (!state.showFeedback && !state.hasResponded && state.currentMedia) {
+      // Convert viewport coordinates to container-relative coordinates
+      if (gestureRef.current) {
+        const rect = gestureRef.current.getBoundingClientRect()
+        const relativeX = x - rect.left
+        const relativeY = y - rect.top
+
+        // Show tap indicator
+        const id = tapIndicatorIdRef.current++
+        setTapIndicators((prev) => [...prev, { id, x: relativeX, y: relativeY }])
+      }
     }
 
     if (!state.hasResponded) {
@@ -110,6 +126,14 @@ function TrainingPageContent() {
         </div>
       </div>
 
+      {/* Feedback Banner */}
+      {state.showFeedback && state.lastResult && (
+        <FeedbackOverlay
+          result={state.lastResult}
+          onAnimationComplete={handleFeedbackShown}
+        />
+      )}
+
       {/* Media Display */}
       <div
         ref={gestureRef}
@@ -130,13 +154,6 @@ function TrainingPageContent() {
             onComplete={() => handleTapIndicatorComplete(indicator.id)}
           />
         ))}
-
-        {state.showFeedback && state.lastResult && (
-          <FeedbackOverlay
-            result={state.lastResult}
-            onAnimationComplete={handleFeedbackShown}
-          />
-        )}
       </div>
 
       {/* Instructions */}
