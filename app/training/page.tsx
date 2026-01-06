@@ -176,16 +176,16 @@ function TrainingPageContent() {
       </div>
 
       {/* Instructions */}
-      {!state.showFeedback && (
-        <div className="bg-black/80 p-4 text-center text-white">
-          <p className="text-sm">
-            Tap for Threat | Swipe for Non-Threat
-          </p>
-          <p className="mt-1 text-xs text-white/60">
-            (Space/Enter = Tap, Arrow Keys = Swipe)
-          </p>
-        </div>
-      )}
+      <div className={`bg-black/80 p-4 text-center text-white transition-opacity ${
+        state.showFeedback ? "opacity-0 pointer-events-none" : "opacity-100"
+      }`}>
+        <p className="text-sm">
+          Tap for Threat | Swipe for Non-Threat
+        </p>
+        <p className="mt-1 text-xs text-white/60">
+          (Space/Enter = Tap, Arrow Keys = Swipe)
+        </p>
+      </div>
     </div>
   )
 }
