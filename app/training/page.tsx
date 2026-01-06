@@ -1,10 +1,9 @@
 "use client"
 
-import { useEffect, useState } from "react"
+import { useEffect, useState, Suspense } from "react"
 import { useSearchParams, useRouter } from "next/navigation"
 import { useTrainingSession } from "@/lib/hooks/use-training-session"
 import { useTouchGestures } from "@/lib/hooks/use-touch-gestures"
-import { useRef } from "react"
 import { MediaDisplay } from "@/components/training/media-display"
 import { FeedbackOverlay } from "@/components/training/feedback-overlay"
 import { UserResponse } from "@/lib/models/types"
@@ -16,7 +15,7 @@ function formatTime(seconds: number): string {
   return `${mins}:${secs.toString().padStart(2, "0")}`
 }
 
-export default function TrainingPage() {
+function TrainingPageContent() {
   const searchParams = useSearchParams()
   const router = useRouter()
   const [mediaUrl, setMediaUrl] = useState<string | null>(null)
@@ -127,3 +126,14 @@ export default function TrainingPage() {
   )
 }
 
+export default function TrainingPage() {
+  return (
+    <Suspense fallback={
+      <div className="flex min-h-screen items-center justify-center bg-black text-white">
+        <p>Loading training session...</p>
+      </div>
+    }>
+      <TrainingPageContent />
+    </Suspense>
+  )
+}
