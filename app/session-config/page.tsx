@@ -41,30 +41,6 @@ function SessionConfigPageContent() {
 
   return (
     <div className="container mx-auto max-w-2xl py-8 px-4 space-y-4">
-      {isAndroid && (
-        <Card className="border-primary/50 bg-primary/5">
-          <CardHeader>
-            <CardTitle>Try the Android App</CardTitle>
-            <CardDescription>
-              Get the full native experience with the Target Discriminator Android app
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <p className="text-sm text-muted-foreground mb-4">
-              For the best experience on Android devices, check out our native app on the Google Play Store.
-            </p>
-            <Button asChild className="w-full">
-              <a
-                href="https://play.google.com/store/apps/details?id=com.targetdiscriminator&pcampaignid=web_share"
-                target="_blank"
-                rel="noopener noreferrer"
-              >
-                Get it on Google Play
-              </a>
-            </Button>
-          </CardContent>
-        </Card>
-      )}
       <Card>
         <CardHeader>
           <CardTitle>Session Configuration</CardTitle>
@@ -138,6 +114,30 @@ function SessionConfigPageContent() {
           </div>
         </CardContent>
       </Card>
+      {isAndroid && (
+        <Card className="border-primary/50 bg-primary/5">
+          <CardHeader>
+            <CardTitle>Try the Android App</CardTitle>
+            <CardDescription>
+              Get the full native experience with the Target Discriminator Android app
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <p className="text-sm text-muted-foreground mb-4">
+              For the best experience on Android devices, check out our native app on the Google Play Store.
+            </p>
+            <Button asChild className="w-full">
+              <a
+                href="https://play.google.com/store/apps/details?id=com.targetdiscriminator&pcampaignid=web_share"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                Get it on Google Play
+              </a>
+            </Button>
+          </CardContent>
+        </Card>
+      )}
     </div>
   )
 }
