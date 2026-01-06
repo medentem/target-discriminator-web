@@ -18,9 +18,9 @@ export default function PrivacyPolicyPage() {
           <section>
             <h2 className="text-xl font-semibold mt-6 mb-3">1. Introduction</h2>
             <p>
-              Medentem LLC ("we," "our," or "us") is committed to protecting your privacy. 
+              Medentem LLC (&quot;we,&quot; &quot;our,&quot; or &quot;us&quot;) is committed to protecting your privacy. 
               This Privacy Policy explains how we collect, use, disclose, and safeguard your information 
-              when you use our web application (the "Service").
+              when you use our web application (the &quot;Service&quot;).
             </p>
             <p>
               This application is designed for law enforcement, military, and private citizens to train 
@@ -35,7 +35,7 @@ export default function PrivacyPolicyPage() {
             <h3 className="text-lg font-semibold mt-4 mb-2">2.1 Age Verification Data</h3>
             <p>
               To ensure compliance with age restrictions, we collect and store your birth month and year 
-              locally in your browser's localStorage. This information is used solely to verify that you 
+              locally in your browser&apos;s localStorage. This information is used solely to verify that you 
               are 18 years or older and is not transmitted to our servers or any third parties.
             </p>
 
@@ -51,14 +51,14 @@ export default function PrivacyPolicyPage() {
               <li>Threat type classifications</li>
             </ul>
             <p>
-              This data is stored locally in your browser's localStorage and is used to track your 
+              This data is stored locally in your browser&apos;s localStorage and is used to track your 
               training progress and performance over time.
             </p>
 
             <h3 className="text-lg font-semibold mt-4 mb-2">2.3 User-Uploaded Media</h3>
             <p>
               If you choose to upload custom training media (photos or videos), these files are stored 
-              locally in your browser's IndexedDB. This media remains on your device and is not transmitted 
+              locally in your browser&apos;s IndexedDB. This media remains on your device and is not transmitted 
               to our servers or any third parties.
             </p>
 
@@ -75,7 +75,7 @@ export default function PrivacyPolicyPage() {
               <li>Device and browser information (anonymized)</li>
             </ul>
             <p>
-              This data is collected automatically and helps us improve the Service's performance and user 
+              This data is collected automatically and helps us improve the Service&apos;s performance and user 
               experience. Vercel Analytics and Speed Insights are privacy-focused and do not collect 
               personally identifiable information (PII).
             </p>
@@ -98,17 +98,17 @@ export default function PrivacyPolicyPage() {
             <h2 className="text-xl font-semibold mt-6 mb-3">4. Data Storage and Location</h2>
             <p>
               <strong>Local Storage:</strong> Age verification status and session statistics are stored 
-              locally in your browser's localStorage. This data remains on your device and can be cleared 
+              locally in your browser&apos;s localStorage. This data remains on your device and can be cleared 
               at any time through your browser settings.
             </p>
             <p>
-              <strong>IndexedDB:</strong> User-uploaded media files are stored locally in your browser's 
+              <strong>IndexedDB:</strong> User-uploaded media files are stored locally in your browser&apos;s 
               IndexedDB. This data remains on your device and is not synchronized with any external servers.
             </p>
             <p>
               <strong>Analytics Data:</strong> Analytics and performance data collected by Vercel Analytics 
               and Speed Insights are processed and stored by Vercel, Inc. This data is stored in accordance 
-              with Vercel's privacy policy and data processing agreements.
+              with Vercel&apos;s privacy policy and data processing agreements.
             </p>
           </section>
 
@@ -119,7 +119,7 @@ export default function PrivacyPolicyPage() {
             <p>
               We use Vercel Analytics, a web analytics service provided by Vercel, Inc. Vercel Analytics 
               collects anonymous usage data to help us understand how users interact with our Service. 
-              For more information about Vercel Analytics' data practices, please visit:{" "}
+              For more information about Vercel Analytics&apos; data practices, please visit:{" "}
               <a 
                 href="https://vercel.com/docs/analytics/privacy-policy" 
                 target="_blank" 
@@ -133,7 +133,7 @@ export default function PrivacyPolicyPage() {
             <h3 className="text-lg font-semibold mt-4 mb-2">5.2 Vercel Speed Insights</h3>
             <p>
               We use Vercel Speed Insights, a performance monitoring service provided by Vercel, Inc. 
-              Speed Insights collects anonymous performance metrics to help us optimize the Service's 
+              Speed Insights collects anonymous performance metrics to help us optimize the Service&apos;s 
               speed and user experience. For more information, please visit:{" "}
               <a 
                 href="https://vercel.com/docs/speed-insights/privacy-policy" 
