@@ -14,7 +14,7 @@ const TAP_MAX_DURATION = 300 // milliseconds
 const TAP_MAX_DISTANCE = 10 // pixels
 
 export function useTouchGestures(
-  onTap: () => void,
+  onTap: (x: number, y: number) => void,
   onSwipe: (direction: "left" | "right") => void
 ) {
   const [touchState, setTouchState] = useState<TouchState>({
@@ -52,7 +52,7 @@ export function useTouchGestures(
 
       // Check for tap
       if (duration < TAP_MAX_DURATION && distance < TAP_MAX_DISTANCE) {
-        onTap()
+        onTap(touch.clientX, touch.clientY)
         startX = null
         startY = null
         startTime = null
@@ -79,6 +79,11 @@ export function useTouchGestures(
       startTime = Date.now()
     }
 
+    const handleMouseMove = (e: MouseEvent) => {
+      // Track mouse movement during drag
+      // This helps detect swipes even if mouse leaves the element
+    }
+
     const handleMouseUp = (e: MouseEvent) => {
       if (startX === null || startY === null || startTime === null) {
         return
@@ -91,7 +96,16 @@ export function useTouchGestures(
 
       // Check for tap (click)
       if (duration < TAP_MAX_DURATION && distance < TAP_MAX_DISTANCE) {
-        onTap()
+        onTap(e.clientX, e.clientY)
+        startX = null
+        startY = null
+        startTime = null
+        return
+      }
+
+      // Check for swipe
+      if (Math.abs(deltaX) > SWIPE_THRESHOLD && Math.abs(deltaX) > Math.abs(deltaY)) {
+        onSwipe(deltaX > 0 ? "right" : "left")
         startX = null
         startY = null
         startTime = null
@@ -106,7 +120,9 @@ export function useTouchGestures(
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === " " || e.key === "Enter") {
         e.preventDefault()
-        onTap()
+        // For keyboard, use center of element as tap location
+        const rect = element.getBoundingClientRect()
+        onTap(rect.left + rect.width / 2, rect.top + rect.height / 2)
       } else if (e.key === "ArrowLeft") {
         e.preventDefault()
         onSwipe("left")
@@ -119,14 +135,19 @@ export function useTouchGestures(
     element.addEventListener("touchstart", handleTouchStart)
     element.addEventListener("touchend", handleTouchEnd)
     element.addEventListener("mousedown", handleMouseDown)
+    element.addEventListener("mousemove", handleMouseMove)
     element.addEventListener("mouseup", handleMouseUp)
+    // Also listen on window for mouseup in case user drags outside element
+    window.addEventListener("mouseup", handleMouseUp)
     window.addEventListener("keydown", handleKeyDown)
 
     return () => {
       element.removeEventListener("touchstart", handleTouchStart)
       element.removeEventListener("touchend", handleTouchEnd)
       element.removeEventListener("mousedown", handleMouseDown)
+      element.removeEventListener("mousemove", handleMouseMove)
       element.removeEventListener("mouseup", handleMouseUp)
+      window.removeEventListener("mouseup", handleMouseUp)
       window.removeEventListener("keydown", handleKeyDown)
     }
   }, [onTap, onSwipe])

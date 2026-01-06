@@ -1,11 +1,12 @@
 "use client"
 
-import { useEffect, useState, Suspense } from "react"
+import { useEffect, useState, useRef, Suspense } from "react"
 import { useSearchParams, useRouter } from "next/navigation"
 import { useTrainingSession } from "@/lib/hooks/use-training-session"
 import { useTouchGestures } from "@/lib/hooks/use-touch-gestures"
 import { MediaDisplay } from "@/components/training/media-display"
 import { FeedbackOverlay } from "@/components/training/feedback-overlay"
+import { TapIndicator } from "@/components/training/tap-indicator"
 import { UserResponse } from "@/lib/models/types"
 import { Button } from "@/components/ui/button"
 
@@ -19,6 +20,8 @@ function TrainingPageContent() {
   const searchParams = useSearchParams()
   const router = useRouter()
   const [mediaUrl, setMediaUrl] = useState<string | null>(null)
+  const [tapIndicators, setTapIndicators] = useState<Array<{ id: number; x: number; y: number }>>([])
+  const tapIndicatorIdRef = useRef(0)
 
   const includeVideos = searchParams.get("videos") === "true"
   const includePhotos = searchParams.get("photos") === "true"
@@ -56,10 +59,25 @@ function TrainingPageContent() {
     }
   }, [state.currentMedia, getMediaUrl])
 
-  const handleTap = () => {
+  const handleTap = (x: number, y: number) => {
+    // Convert viewport coordinates to container-relative coordinates
+    if (gestureRef.current) {
+      const rect = gestureRef.current.getBoundingClientRect()
+      const relativeX = x - rect.left
+      const relativeY = y - rect.top
+
+      // Show tap indicator
+      const id = tapIndicatorIdRef.current++
+      setTapIndicators((prev) => [...prev, { id, x: relativeX, y: relativeY }])
+    }
+
     if (!state.hasResponded) {
       handleUserResponse(UserResponse.TAP)
     }
+  }
+
+  const handleTapIndicatorComplete = (id: number) => {
+    setTapIndicators((prev) => prev.filter((indicator) => indicator.id !== id))
   }
 
   const handleSwipe = () => {
@@ -102,6 +120,16 @@ function TrainingPageContent() {
           mediaUrl={mediaUrl}
           onVideoCompleted={handleVideoCompleted}
         />
+
+        {/* Tap Indicators */}
+        {tapIndicators.map((indicator) => (
+          <TapIndicator
+            key={indicator.id}
+            x={indicator.x}
+            y={indicator.y}
+            onComplete={() => handleTapIndicatorComplete(indicator.id)}
+          />
+        ))}
 
         {state.showFeedback && state.lastResult && (
           <FeedbackOverlay

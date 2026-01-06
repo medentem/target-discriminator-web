@@ -35,14 +35,16 @@ export function MediaDisplay({ mediaItem, mediaUrl, onVideoCompleted }: MediaDis
 
   if (mediaItem.type === MediaType.VIDEO) {
     return (
-      <video
-        ref={videoRef}
-        src={mediaUrl}
-        className="h-full w-full object-contain"
-        onEnded={onVideoCompleted}
-        playsInline
-        muted
-      />
+      <div className="flex h-full w-full items-center justify-center bg-black">
+        <video
+          ref={videoRef}
+          src={mediaUrl}
+          className="max-h-full max-w-full object-contain"
+          onEnded={onVideoCompleted}
+          playsInline
+          muted
+        />
+      </div>
     )
   }
 
