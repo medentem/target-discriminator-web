@@ -23,7 +23,7 @@ function TrainingPageContent() {
   const [tapIndicators, setTapIndicators] = useState<Array<{ id: number; x: number; y: number }>>([])
   const tapIndicatorIdRef = useRef(0)
   const autoAdvanceTimerRef = useRef<NodeJS.Timeout | null>(null)
-  const handleFeedbackShownRef = useRef(handleFeedbackShown)
+  const handleFeedbackShownRef = useRef<(() => void) | null>(null)
 
   const includeVideos = searchParams.get("videos") === "true"
   const includePhotos = searchParams.get("photos") === "true"
@@ -74,9 +74,11 @@ function TrainingPageContent() {
       autoAdvanceTimerRef.current = null
     }
 
-    if (state.showFeedback && state.lastResult && !state.isSessionComplete) {
+    if (state.showFeedback && state.lastResult && !state.isSessionComplete && handleFeedbackShownRef.current) {
       autoAdvanceTimerRef.current = setTimeout(() => {
-        handleFeedbackShownRef.current()
+        if (handleFeedbackShownRef.current) {
+          handleFeedbackShownRef.current()
+        }
         autoAdvanceTimerRef.current = null
       }, 1000) // Auto-advance after 1 second
     }
@@ -87,7 +89,7 @@ function TrainingPageContent() {
         autoAdvanceTimerRef.current = null
       }
     }
-  }, [state.showFeedback, state.isSessionComplete])
+  }, [state.showFeedback, state.lastResult, state.isSessionComplete])
 
   const handleTap = (x: number, y: number) => {
     // Only show tap indicator when media is active and waiting for response
