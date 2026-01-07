@@ -94,11 +94,10 @@ function SessionConfigPageContent() {
             </div>
           </div>
 
-          {!canStart && (
-            <p className="text-sm text-destructive">
-              Please enable at least one media type to start a session.
-            </p>
-          )}
+          {/* Always render to reserve space, but only show when needed to prevent CLS */}
+          <p className={`text-sm text-destructive min-h-[1.25rem] ${!canStart ? '' : 'invisible'}`}>
+            Please enable at least one media type to start a session.
+          </p>
 
           <div className="flex gap-2">
             <Button
@@ -114,30 +113,29 @@ function SessionConfigPageContent() {
           </div>
         </CardContent>
       </Card>
-      {isAndroid && (
-        <Card className="border-primary/50 bg-primary/5">
-          <CardHeader>
-            <CardTitle>Try the Android App</CardTitle>
-            <CardDescription>
-              Get the full native experience with the Target Discriminator Android app
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <p className="text-sm text-muted-foreground mb-4">
-              For the best experience on Android devices, check out our native app on the Google Play Store.
-            </p>
-            <Button asChild className="w-full">
-              <a
-                href="https://play.google.com/store/apps/details?id=com.targetdiscriminator&pcampaignid=web_share"
-                target="_blank"
-                rel="noopener noreferrer"
-              >
-                Get it on Google Play
-              </a>
-            </Button>
-          </CardContent>
-        </Card>
-      )}
+      {/* Always render to reserve space, but only show content on Android to prevent CLS */}
+      <Card className={`border-primary/50 bg-primary/5 ${!isAndroid ? 'invisible' : ''}`}>
+        <CardHeader>
+          <CardTitle>Try the Android App</CardTitle>
+          <CardDescription>
+            Get the full native experience with the Target Discriminator Android app
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <p className="text-sm text-muted-foreground mb-4">
+            For the best experience on Android devices, check out our native app on the Google Play Store.
+          </p>
+          <Button asChild className="w-full">
+            <a
+              href="https://play.google.com/store/apps/details?id=com.targetdiscriminator&pcampaignid=web_share"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              Get it on Google Play
+            </a>
+          </Button>
+        </CardContent>
+      </Card>
     </div>
   )
 }

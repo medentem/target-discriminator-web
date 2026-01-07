@@ -114,18 +114,21 @@ export default function AgeVerificationPage() {
               </select>
             </div>
 
-            {age !== null && (
-              <div className="rounded-md bg-muted p-3 text-sm">
-                <p className="font-medium">
-                  Age: {age} {age === 1 ? "year" : "years"}
-                </p>
-                {age < 18 && (
-                  <p className="mt-1 text-destructive">
-                    You must be 18 years or older to use this application.
+            {/* Always render to reserve space, but only show when age is calculated to prevent CLS */}
+            <div className={`rounded-md bg-muted p-3 text-sm min-h-[3rem] ${age === null ? 'invisible' : ''}`}>
+              {age !== null && (
+                <>
+                  <p className="font-medium">
+                    Age: {age} {age === 1 ? "year" : "years"}
                   </p>
-                )}
-              </div>
-            )}
+                  {age < 18 && (
+                    <p className="mt-1 text-destructive">
+                      You must be 18 years or older to use this application.
+                    </p>
+                  )}
+                </>
+              )}
+            </div>
           </div>
 
           <div className="flex gap-2">
