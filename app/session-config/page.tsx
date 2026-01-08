@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useMemo, useCallback, startTransition } from "react"
 import { useRouter } from "next/navigation"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
@@ -19,15 +19,26 @@ function SessionConfigPageContent() {
   const [includePhotos, setIncludePhotos] = useState(true)
   const [durationMinutes, setDurationMinutes] = useState(1)
 
-  const config: SessionConfig = {
-    includeVideos,
-    includePhotos,
-    durationMinutes,
-  }
+  // Memoize config to avoid recreating object on every render
+  const config: SessionConfig = useMemo(
+    () => ({
+      includeVideos,
+      includePhotos,
+      durationMinutes,
+    }),
+    [includeVideos, includePhotos, durationMinutes]
+  )
 
-  const canStart = isValidSessionConfig(config)
+  // Memoize validation result to avoid recalculating on every render
+  const canStart = useMemo(() => isValidSessionConfig(config), [config])
 
-  const handleStartSession = () => {
+  // Memoize duration display string
+  const durationDisplay = useMemo(
+    () => `${durationMinutes} ${durationMinutes === 1 ? "minute" : "minutes"}`,
+    [durationMinutes]
+  )
+
+  const handleStartSession = useCallback(() => {
     if (!canStart) return
 
     const params = new URLSearchParams({
@@ -37,7 +48,12 @@ function SessionConfigPageContent() {
     })
 
     router.push(`/training?${params.toString()}`)
-  }
+  }, [canStart, includeVideos, includePhotos, durationMinutes, router])
+
+  // Optimize slider updates - keep immediate for smooth dragging, but memoize handler
+  const handleDurationChange = useCallback((value: number[]) => {
+    setDurationMinutes(value[0])
+  }, [])
 
   return (
     <div className="container mx-auto max-w-2xl py-8 px-4 space-y-4">
@@ -80,12 +96,12 @@ function SessionConfigPageContent() {
               <div className="flex items-center justify-between">
                 <label className="text-sm font-medium">Duration</label>
                 <span className="text-sm text-muted-foreground">
-                  {durationMinutes} {durationMinutes === 1 ? "minute" : "minutes"}
+                  {durationDisplay}
                 </span>
               </div>
               <Slider
                 value={[durationMinutes]}
-                onValueChange={(value) => setDurationMinutes(value[0])}
+                onValueChange={handleDurationChange}
                 min={1}
                 max={30}
                 step={1}

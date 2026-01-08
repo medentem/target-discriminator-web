@@ -121,8 +121,13 @@ export function useTouchGestures(
       if (e.key === " " || e.key === "Enter") {
         e.preventDefault()
         // For keyboard, use center of element as tap location
-        const rect = element.getBoundingClientRect()
-        onTap(rect.left + rect.width / 2, rect.top + rect.height / 2)
+        // Defer getBoundingClientRect to avoid blocking the main thread
+        requestAnimationFrame(() => {
+          if (element) {
+            const rect = element.getBoundingClientRect()
+            onTap(rect.left + rect.width / 2, rect.top + rect.height / 2)
+          }
+        })
       } else if (e.key === "ArrowLeft") {
         e.preventDefault()
         onSwipe("left")

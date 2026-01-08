@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useState, useRef, Suspense } from "react"
+import { useEffect, useState, useRef, Suspense, startTransition } from "react"
 import { useSearchParams, useRouter } from "next/navigation"
 import { useTrainingSession } from "@/lib/hooks/use-training-session"
 import { useTouchGestures } from "@/lib/hooks/use-touch-gestures"
@@ -121,22 +121,38 @@ function TrainingPageContent() {
   }, [state.showFeedback, state.lastResult, state.isSessionComplete])
 
   const handleTap = (x: number, y: number) => {
-    // Only show tap indicator when media is active and waiting for response
-    if (!state.showFeedback && !state.hasResponded && state.currentMedia) {
-      // Convert viewport coordinates to container-relative coordinates
-      if (gestureRef.current) {
-        const rect = gestureRef.current.getBoundingClientRect()
-        const relativeX = x - rect.left
-        const relativeY = y - rect.top
+    // Capture state at tap time to avoid stale closures
+    const shouldShowIndicator = !state.showFeedback && !state.hasResponded && state.currentMedia
+    const hasNotResponded = !state.hasResponded
 
-        // Show tap indicator
-        const id = tapIndicatorIdRef.current++
-        setTapIndicators((prev) => [...prev, { id, x: relativeX, y: relativeY }])
-      }
+    // Immediately process user response for better INP - this is the critical path
+    if (hasNotResponded) {
+      handleUserResponse(UserResponse.TAP)
     }
 
-    if (!state.hasResponded) {
-      handleUserResponse(UserResponse.TAP)
+    // Defer tap indicator calculation to avoid blocking the main thread
+    // Use requestAnimationFrame to defer getBoundingClientRect() which forces layout
+    if (shouldShowIndicator && gestureRef.current) {
+      // Capture values we need before deferring
+      const element = gestureRef.current
+      const viewportX = x
+      const viewportY = y
+      
+      // Defer the layout read to avoid blocking the critical response path
+      requestAnimationFrame(() => {
+        // Verify element still exists (component might have unmounted)
+        if (element) {
+          const rect = element.getBoundingClientRect()
+          const relativeX = viewportX - rect.left
+          const relativeY = viewportY - rect.top
+
+          // Use startTransition for non-urgent visual feedback
+          startTransition(() => {
+            const id = tapIndicatorIdRef.current++
+            setTapIndicators((prev) => [...prev, { id, x: relativeX, y: relativeY }])
+          })
+        }
+      })
     }
   }
 
