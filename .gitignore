@@ -34,3 +34,6 @@ yarn-error.log*
 *.tsbuildinfo
 next-env.d.ts
 
+# Media assets (synced from submodule, don't commit these)
+/public/media/
+

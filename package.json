@@ -3,8 +3,11 @@
   "version": "1.0.0",
   "private": true,
   "scripts": {
-    "dev": "next dev",
+    "sync-media": "bash scripts/sync-media.sh",
+    "prebuild": "npm run sync-media",
+    "predev": "npm run sync-media",
     "build": "node scripts/generate-media-manifest.js && next build",
+    "dev": "next dev",
     "start": "next start",
     "lint": "next lint",
     "generate-manifest": "node scripts/generate-media-manifest.js"
