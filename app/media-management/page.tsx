@@ -125,7 +125,7 @@ function MediaManagementPageContent() {
                 Back to Config
               </Button>
               <Button onClick={() => router.push("/media-gallery")} variant="outline">
-                View Gallery
+                Manage Built-in Media
               </Button>
             </div>
           </div>

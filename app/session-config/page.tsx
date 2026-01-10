@@ -221,9 +221,6 @@ function SessionConfigPageContent() {
             <Button variant="outline" asChild>
               <Link href="/media-management">Manage Media</Link>
             </Button>
-            <Button variant="outline" asChild>
-              <Link href="/media-gallery">View Gallery</Link>
-            </Button>
           </div>
         </CardContent>
       </Card>
