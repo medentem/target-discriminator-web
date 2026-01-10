@@ -1,6 +1,7 @@
 "use client"
 
 import { MediaType, ThreatType } from "@/lib/models/types"
+import { useThreatLabels } from "@/lib/hooks/use-threat-labels"
 import { Button } from "@/components/ui/button"
 
 export interface FilterState {
@@ -19,6 +20,7 @@ export function MediaGalleryFilters({
   filters,
   onFilterChange,
 }: MediaGalleryFiltersProps) {
+  const labels = useThreatLabels()
   const updateFilter = <K extends keyof FilterState>(
     key: K,
     value: FilterState[K]
@@ -53,8 +55,8 @@ export function MediaGalleryFilters({
           className="rounded-md border border-input bg-background px-3 py-1 text-sm"
         >
           <option value="ALL">All</option>
-          <option value={ThreatType.THREAT}>Threat</option>
-          <option value={ThreatType.NON_THREAT}>Non-Threat</option>
+          <option value={ThreatType.THREAT}>{labels.threat}</option>
+          <option value={ThreatType.NON_THREAT}>{labels.nonThreat}</option>
         </select>
       </div>
 

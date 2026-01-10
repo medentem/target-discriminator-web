@@ -2,6 +2,7 @@
 
 import { ResponseResult } from "@/lib/models/response-result"
 import { ThreatType, UserResponse } from "@/lib/models/types"
+import { useThreatLabels, getThreatLabel } from "@/lib/hooks/use-threat-labels"
 
 interface FeedbackOverlayProps {
   result: ResponseResult | null
@@ -9,14 +10,14 @@ interface FeedbackOverlayProps {
 }
 
 export function FeedbackOverlay({ result, onAnimationComplete }: FeedbackOverlayProps) {
+  const labels = useThreatLabels()
+  
   if (!result) return null
 
   const isCorrect = result.isCorrect
   const message = isCorrect ? "Correct!" : "Incorrect"
-  const threatLabel =
-    result.actualThreatType === ThreatType.THREAT ? "Threat" : "Non-Threat"
-  const responseLabel =
-    result.userResponse === UserResponse.TAP ? "Threat" : "Non-Threat"
+  const threatLabel = getThreatLabel(result.actualThreatType, labels)
+  const responseLabel = result.userResponse === UserResponse.TAP ? labels.threat : labels.nonThreat
 
   return (
     <div

@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button"
 import { Dialog, DialogContent, DialogFooter } from "@/components/ui/dialog"
 import { MediaItem } from "@/lib/models/media-item"
 import { MediaType, ThreatType } from "@/lib/models/types"
+import { useThreatLabels } from "@/lib/hooks/use-threat-labels"
 import { UserMediaRepository } from "@/lib/repositories/user-media-repository"
 import { IndexedDBService } from "@/lib/storage/indexed-db"
 import { AgeVerificationGuard } from "@/components/age-verification-guard"
@@ -14,6 +15,7 @@ import Image from "next/image"
 
 function MediaManagementPageContent() {
   const router = useRouter()
+  const labels = useThreatLabels()
   const [mediaItems, setMediaItems] = useState<MediaItem[]>([])
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
@@ -151,8 +153,8 @@ function MediaManagementPageContent() {
                 className="rounded-md border border-input bg-background px-3 py-1 text-sm"
               >
                 <option value="ALL">All</option>
-                <option value={ThreatType.THREAT}>Threat</option>
-                <option value={ThreatType.NON_THREAT}>Non-Threat</option>
+                <option value={ThreatType.THREAT}>{labels.threat}</option>
+                <option value={ThreatType.NON_THREAT}>{labels.nonThreat}</option>
               </select>
             </div>
           </div>
@@ -202,7 +204,7 @@ function MediaManagementPageContent() {
                         }
                         className="h-4 w-4"
                       />
-                      <span className="font-medium text-destructive">Threat</span>
+                      <span className="font-medium text-destructive">{labels.threat}</span>
                     </label>
                     <label className="flex cursor-pointer items-center gap-2 rounded-md border p-3 hover:bg-accent">
                       <input
@@ -215,7 +217,7 @@ function MediaManagementPageContent() {
                         }
                         className="h-4 w-4"
                       />
-                      <span className="font-medium text-green-600">Non-Threat</span>
+                      <span className="font-medium text-green-600">{labels.nonThreat}</span>
                     </label>
                   </div>
                 </div>

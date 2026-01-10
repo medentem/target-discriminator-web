@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useMemo, useCallback, startTransition } from "react"
+import { useState, useMemo, useCallback, startTransition, useEffect } from "react"
 import { useRouter } from "next/navigation"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
@@ -10,6 +10,8 @@ import { SessionConfig } from "@/lib/models/session-config"
 import { isValidSessionConfig } from "@/lib/models/session-config"
 import { AgeVerificationGuard } from "@/components/age-verification-guard"
 import { useAndroidDetection } from "@/lib/hooks/use-android-detection"
+import { ThreatLabelPreset, ThreatLabelConfig } from "@/lib/models/types"
+import { LocalStorageService } from "@/lib/storage/local-storage"
 import Link from "next/link"
 
 function SessionConfigPageContent() {
@@ -18,6 +20,31 @@ function SessionConfigPageContent() {
   const [includeVideos, setIncludeVideos] = useState(true)
   const [includePhotos, setIncludePhotos] = useState(true)
   const [durationMinutes, setDurationMinutes] = useState(1)
+  
+  // Threat label configuration
+  const [labelPreset, setLabelPreset] = useState<ThreatLabelPreset>("THREAT_NON_THREAT")
+  const [customThreatLabel, setCustomThreatLabel] = useState("")
+  const [customNonThreatLabel, setCustomNonThreatLabel] = useState("")
+
+  // Load saved threat label config on mount
+  useEffect(() => {
+    const savedConfig = LocalStorageService.getThreatLabelConfig()
+    setLabelPreset(savedConfig.preset)
+    setCustomThreatLabel(savedConfig.customThreatLabel || "")
+    setCustomNonThreatLabel(savedConfig.customNonThreatLabel || "")
+  }, [])
+
+  // Save threat label config when it changes
+  useEffect(() => {
+    const config: ThreatLabelConfig = {
+      preset: labelPreset,
+      ...(labelPreset === "CUSTOM" && {
+        customThreatLabel: customThreatLabel.trim() || undefined,
+        customNonThreatLabel: customNonThreatLabel.trim() || undefined,
+      }),
+    }
+    LocalStorageService.saveThreatLabelConfig(config)
+  }, [labelPreset, customThreatLabel, customNonThreatLabel])
 
   // Memoize config to avoid recreating object on every render
   const config: SessionConfig = useMemo(
@@ -107,6 +134,74 @@ function SessionConfigPageContent() {
                 step={1}
                 className="w-full"
               />
+            </div>
+
+            <div className="space-y-3 pt-2 border-t">
+              <div className="space-y-0.5">
+                <label className="text-sm font-medium">Threat Labels</label>
+                <p className="text-sm text-muted-foreground">
+                  Choose how threat and non-threat are labeled throughout the app
+                </p>
+              </div>
+              <div className="space-y-2">
+                <label className="flex cursor-pointer items-center gap-2 rounded-md border p-3 hover:bg-accent">
+                  <input
+                    type="radio"
+                    name="threatLabelPreset"
+                    value="THREAT_NON_THREAT"
+                    checked={labelPreset === "THREAT_NON_THREAT"}
+                    onChange={(e) => setLabelPreset(e.target.value as ThreatLabelPreset)}
+                    className="h-4 w-4"
+                  />
+                  <span className="font-medium">Threat / Non-Threat</span>
+                </label>
+                <label className="flex cursor-pointer items-center gap-2 rounded-md border p-3 hover:bg-accent">
+                  <input
+                    type="radio"
+                    name="threatLabelPreset"
+                    value="SHOOT_NO_SHOOT"
+                    checked={labelPreset === "SHOOT_NO_SHOOT"}
+                    onChange={(e) => setLabelPreset(e.target.value as ThreatLabelPreset)}
+                    className="h-4 w-4"
+                  />
+                  <span className="font-medium">Shoot / No-Shoot</span>
+                </label>
+                <label className="flex cursor-pointer items-center gap-2 rounded-md border p-3 hover:bg-accent">
+                  <input
+                    type="radio"
+                    name="threatLabelPreset"
+                    value="CUSTOM"
+                    checked={labelPreset === "CUSTOM"}
+                    onChange={(e) => setLabelPreset(e.target.value as ThreatLabelPreset)}
+                    className="h-4 w-4"
+                  />
+                  <span className="font-medium">Custom</span>
+                </label>
+              </div>
+              {labelPreset === "CUSTOM" && (
+                <div className="space-y-2 pl-6">
+                  <div className="space-y-1">
+                    <label className="text-xs font-medium">Threat Label</label>
+                    <input
+                      type="text"
+                      value={customThreatLabel}
+                      onChange={(e) => setCustomThreatLabel(e.target.value)}
+                      placeholder="Threat"
+                      className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
+                    />
+                  </div>
+                  <div className="space-y-1">
+                    <label className="text-xs font-medium">Non-Threat Label</label>
+                    <input
+                      type="text"
+                      value={customNonThreatLabel}
+                      onChange={(e) => setCustomNonThreatLabel(e.target.value)}
+                      placeholder="Non-Threat"
+                      className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
+                    />
+                  </div>
+                </div>
+              )}
             </div>
           </div>
 

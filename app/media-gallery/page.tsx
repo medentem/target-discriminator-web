@@ -7,17 +7,20 @@ import { Button } from "@/components/ui/button"
 import { Dialog, DialogContent, DialogFooter } from "@/components/ui/dialog"
 import { MediaItem } from "@/lib/models/media-item"
 import { MediaType, ThreatType } from "@/lib/models/types"
+import { useThreatLabels } from "@/lib/hooks/use-threat-labels"
 import { MediaOverride } from "@/lib/models/media-override"
 import { MediaRepository } from "@/lib/repositories/media-repository"
 import { MediaOverrideRepository } from "@/lib/repositories/media-override-repository"
 import { MediaItemCard } from "@/components/media-gallery/media-item-card"
 import { MediaGalleryFilters, FilterState } from "@/components/media-gallery/media-gallery-filters"
 import { MediaGalleryToolbar } from "@/components/media-gallery/media-gallery-toolbar"
+import { MediaPreviewModal } from "@/components/media-gallery/media-preview-modal"
 import { AgeVerificationGuard } from "@/components/age-verification-guard"
 import { cn } from "@/lib/utils"
 
 function MediaGalleryPageContent() {
   const router = useRouter()
+  const labels = useThreatLabels()
   const [mediaItems, setMediaItems] = useState<MediaItem[]>([])
   const [overrides, setOverrides] = useState<Map<string, MediaOverride>>(new Map())
   const [isLoading, setIsLoading] = useState(true)
@@ -32,6 +35,8 @@ function MediaGalleryPageContent() {
   const [showReclassifyDialog, setShowReclassifyDialog] = useState(false)
   const [reclassifyThreatType, setReclassifyThreatType] = useState<ThreatType>(ThreatType.THREAT)
   const [pendingReclassifyPaths, setPendingReclassifyPaths] = useState<Set<string>>(new Set())
+  const [previewMediaItem, setPreviewMediaItem] = useState<MediaItem | null>(null)
+  const [previewIndex, setPreviewIndex] = useState(0)
 
   const mediaRepository = useRef(new MediaRepository())
   const overrideRepository = useRef(new MediaOverrideRepository())
@@ -206,6 +211,25 @@ function MediaGalleryPageContent() {
     setShowReclassifyDialog(false)
   }
 
+  const handleViewMedia = (item: MediaItem) => {
+    const index = filteredMedia.findIndex((m) => m.path === item.path)
+    if (index !== -1) {
+      setPreviewIndex(index)
+      setPreviewMediaItem(item)
+    }
+  }
+
+  const handleClosePreview = () => {
+    setPreviewMediaItem(null)
+  }
+
+  const handleNavigatePreview = (index: number) => {
+    if (index >= 0 && index < filteredMedia.length) {
+      setPreviewIndex(index)
+      setPreviewMediaItem(filteredMedia[index])
+    }
+  }
+
   return (
     <div className="container mx-auto max-w-7xl py-8 px-4">
       <Card>
@@ -269,7 +293,7 @@ function MediaGalleryPageContent() {
                         }
                         className="h-4 w-4"
                       />
-                      <span className="font-medium text-destructive">Threat</span>
+                      <span className="font-medium text-destructive">{labels.threat}</span>
                     </label>
                     <label className="flex cursor-pointer items-center gap-2 rounded-md border p-3 hover:bg-accent">
                       <input
@@ -282,7 +306,7 @@ function MediaGalleryPageContent() {
                         }
                         className="h-4 w-4"
                       />
-                      <span className="font-medium text-green-600">Non-Threat</span>
+                      <span className="font-medium text-green-600">{labels.nonThreat}</span>
                     </label>
                   </div>
                 </div>
@@ -323,6 +347,7 @@ function MediaGalleryPageContent() {
                   onExclude={() => handleExclude(item.path)}
                   onInclude={() => handleInclude(item.path)}
                   onReclassify={() => handleSingleReclassify(item.path)}
+                  onView={() => handleViewMedia(item)}
                 />
               ))}
             </div>
@@ -336,6 +361,16 @@ function MediaGalleryPageContent() {
           )}
         </CardContent>
       </Card>
+
+      {/* Media Preview Modal */}
+      <MediaPreviewModal
+        mediaItem={previewMediaItem}
+        allMediaItems={filteredMedia}
+        currentIndex={previewIndex}
+        isOpen={previewMediaItem !== null}
+        onClose={handleClosePreview}
+        onNavigate={handleNavigatePreview}
+      />
     </div>
   )
 }

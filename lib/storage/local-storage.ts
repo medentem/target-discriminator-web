@@ -1,8 +1,11 @@
 import { SessionStats } from "@/lib/models/session-stats"
 
+import { ThreatLabelConfig } from "@/lib/models/types"
+
 const PREFS_NAME = "target_discriminator"
 const KEY_STATS = "session_stats"
 const KEY_AGE_VERIFIED = "age_verified"
+const KEY_THREAT_LABELS = "threat_labels"
 
 export class LocalStorageService {
   private static getStorage(): Storage | null {
@@ -72,6 +75,38 @@ export class LocalStorageService {
     } catch (e) {
       console.error("Failed to load age verification status:", e)
       return false
+    }
+  }
+
+  static getThreatLabelConfig(): ThreatLabelConfig {
+    const storage = this.getStorage()
+    if (!storage) {
+      return { preset: "THREAT_NON_THREAT" }
+    }
+
+    try {
+      const jsonString = storage.getItem(KEY_THREAT_LABELS)
+      if (!jsonString) return { preset: "THREAT_NON_THREAT" }
+      
+      return JSON.parse(jsonString) as ThreatLabelConfig
+    } catch (e) {
+      console.error("Failed to load threat label config:", e)
+      return { preset: "THREAT_NON_THREAT" }
+    }
+  }
+
+  static saveThreatLabelConfig(config: ThreatLabelConfig): void {
+    const storage = this.getStorage()
+    if (!storage) return
+
+    try {
+      storage.setItem(KEY_THREAT_LABELS, JSON.stringify(config))
+      // Dispatch custom event for same-tab updates
+      if (typeof window !== "undefined") {
+        window.dispatchEvent(new CustomEvent("threatLabelConfigChanged"))
+      }
+    } catch (e) {
+      console.error("Failed to save threat label config:", e)
     }
   }
 }

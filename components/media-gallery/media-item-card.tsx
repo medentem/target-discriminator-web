@@ -4,6 +4,7 @@ import { useState, useEffect } from "react"
 import { MediaItem } from "@/lib/models/media-item"
 import { MediaType, ThreatType } from "@/lib/models/types"
 import { MediaOverride } from "@/lib/models/media-override"
+import { useThreatLabels, getThreatLabel } from "@/lib/hooks/use-threat-labels"
 import { Card, CardContent } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { IndexedDBService } from "@/lib/storage/indexed-db"
@@ -18,6 +19,7 @@ interface MediaItemCardProps {
   onExclude?: () => void
   onInclude?: () => void
   onReclassify?: () => void
+  onView?: () => void
 }
 
 export function MediaItemCard({
@@ -28,7 +30,9 @@ export function MediaItemCard({
   onExclude,
   onInclude,
   onReclassify,
+  onView,
 }: MediaItemCardProps) {
+  const labels = useThreatLabels()
   const [mediaUrl, setMediaUrl] = useState<string | null>(null)
   const [isHovered, setIsHovered] = useState(false)
   const isExcluded = override?.isExcluded || false
@@ -95,7 +99,15 @@ export function MediaItemCard({
         )}
 
         {/* Media preview */}
-        <div className="relative aspect-video bg-black">
+        <div
+          className="relative aspect-video bg-black cursor-pointer"
+          onClick={(e) => {
+            e.stopPropagation()
+            if (onView) {
+              onView()
+            }
+          }}
+        >
           {mediaUrl ? (
             mediaItem.type === MediaType.VIDEO ? (
               <video
@@ -131,6 +143,18 @@ export function MediaItemCard({
           {/* Action buttons on hover */}
           {isHovered && !isExcluded && (
             <div className="absolute inset-0 flex items-center justify-center gap-2 bg-black/60">
+              {onView && (
+                <Button
+                  size="sm"
+                  variant="default"
+                  onClick={(e) => {
+                    e.stopPropagation()
+                    onView()
+                  }}
+                >
+                  View
+                </Button>
+              )}
               {onExclude && (
                 <Button
                   size="sm"
@@ -185,7 +209,7 @@ export function MediaItemCard({
                   getThreatBadgeColor()
                 )}
               >
-                {displayThreatType === ThreatType.THREAT ? "THREAT" : "NON-THREAT"}
+                {getThreatLabel(displayThreatType, labels).toUpperCase()}
               </span>
               {hasThreatOverride && (
                 <span className="rounded-md bg-orange-600/20 text-orange-600 border border-orange-600/50 px-2 py-0.5 text-xs font-semibold">

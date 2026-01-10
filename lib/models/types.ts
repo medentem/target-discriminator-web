@@ -13,3 +13,11 @@ export enum UserResponse {
   SWIPE = "SWIPE",
 }
 
+export type ThreatLabelPreset = "THREAT_NON_THREAT" | "SHOOT_NO_SHOOT" | "CUSTOM"
+
+export interface ThreatLabelConfig {
+  preset: ThreatLabelPreset
+  customThreatLabel?: string
+  customNonThreatLabel?: string
+}
+

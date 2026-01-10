@@ -8,6 +8,7 @@ import { MediaDisplay } from "@/components/training/media-display"
 import { FeedbackOverlay } from "@/components/training/feedback-overlay"
 import { TapIndicator } from "@/components/training/tap-indicator"
 import { UserResponse, MediaType } from "@/lib/models/types"
+import { useThreatLabels } from "@/lib/hooks/use-threat-labels"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { AgeVerificationGuard } from "@/components/age-verification-guard"
@@ -21,6 +22,7 @@ function formatTime(seconds: number): string {
 function TrainingPageContent() {
   const searchParams = useSearchParams()
   const router = useRouter()
+  const labels = useThreatLabels()
   const [mediaUrl, setMediaUrl] = useState<string | null>(null)
   const [nextMediaUrl, setNextMediaUrl] = useState<string | null>(null)
   const [tapIndicators, setTapIndicators] = useState<Array<{ id: number; x: number; y: number }>>([])
@@ -280,7 +282,7 @@ function TrainingPageContent() {
           state.showFeedback ? "opacity-0 pointer-events-none" : "opacity-100"
         }`}>
           <p className="text-sm">
-            Tap for Threat | Swipe for Non-Threat
+            Tap for {labels.threat} | Swipe for {labels.nonThreat}
           </p>
           <p className="mt-1 text-xs text-white/60">
             (Space/Enter = Tap, Arrow Keys = Swipe)
