@@ -115,7 +115,7 @@ function SessionConfigPageContent() {
             Please enable at least one media type to start a session.
           </p>
 
-          <div className="flex gap-2">
+          <div className="flex gap-2 flex-wrap">
             <Button
               onClick={handleStartSession}
               disabled={!canStart}
@@ -125,6 +125,9 @@ function SessionConfigPageContent() {
             </Button>
             <Button variant="outline" asChild>
               <Link href="/media-management">Manage Media</Link>
+            </Button>
+            <Button variant="outline" asChild>
+              <Link href="/media-gallery">View Gallery</Link>
             </Button>
           </div>
         </CardContent>

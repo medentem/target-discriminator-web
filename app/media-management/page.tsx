@@ -118,9 +118,14 @@ function MediaManagementPageContent() {
                 Manage your custom training media files
               </CardDescription>
             </div>
-            <Button onClick={() => router.push("/session-config")} variant="outline">
-              Back to Config
-            </Button>
+            <div className="flex gap-2">
+              <Button onClick={() => router.push("/session-config")} variant="outline">
+                Back to Config
+              </Button>
+              <Button onClick={() => router.push("/media-gallery")} variant="outline">
+                View Gallery
+              </Button>
+            </div>
           </div>
         </CardHeader>
         <CardContent className="space-y-4">

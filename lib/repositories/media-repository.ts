@@ -2,10 +2,12 @@ import { MediaItem } from "@/lib/models/media-item"
 import { MediaType, ThreatType } from "@/lib/models/types"
 import { IndexedDBService } from "@/lib/storage/indexed-db"
 import { BUILT_IN_MEDIA } from "@/lib/data/media-manifest-generated"
+import { MediaOverrideRepository } from "@/lib/repositories/media-override-repository"
 
 export class MediaRepository {
   // Cache object URLs to prevent creating duplicates and causing flickering
   private objectUrlCache = new Map<string, string>()
+  private overrideRepository = new MediaOverrideRepository()
 
   async getMediaItems(
     includeVideos: boolean,
@@ -70,7 +72,27 @@ export class MediaRepository {
       }
     }
 
-    return mediaItems
+    // Apply overrides: filter excluded media and apply threat type overrides
+    return this.applyOverrides(mediaItems)
+  }
+
+  private async applyOverrides(mediaItems: MediaItem[]): Promise<MediaItem[]> {
+    const overrides = await this.overrideRepository.getOverridesMap()
+    const excludedPaths = await this.overrideRepository.getExcludedPaths()
+
+    // Filter out excluded media
+    const filtered = mediaItems.filter((item) => !excludedPaths.has(item.path))
+
+    // Apply threat type overrides
+    const overridden = filtered.map((item) => {
+      const override = overrides.get(item.path)
+      if (override?.threatTypeOverride) {
+        return { ...item, threatType: override.threatTypeOverride }
+      }
+      return item
+    })
+
+    return overridden
   }
 
   async getMediaUrl(mediaItem: MediaItem): Promise<string> {
@@ -113,6 +135,40 @@ export class MediaRepository {
       URL.revokeObjectURL(url)
     }
     this.objectUrlCache.clear()
+  }
+
+  // Get all media items for gallery view (includes excluded items)
+  async getAllMediaItemsForGallery(): Promise<MediaItem[]> {
+    const mediaItems: MediaItem[] = []
+
+    // Add all built-in media
+    mediaItems.push(...BUILT_IN_MEDIA)
+
+    // Add all user media
+    const userVideosThreat = await IndexedDBService.getUserMediaItems(
+      MediaType.VIDEO,
+      ThreatType.THREAT
+    )
+    const userVideosNonThreat = await IndexedDBService.getUserMediaItems(
+      MediaType.VIDEO,
+      ThreatType.NON_THREAT
+    )
+    const userPhotosThreat = await IndexedDBService.getUserMediaItems(
+      MediaType.PHOTO,
+      ThreatType.THREAT
+    )
+    const userPhotosNonThreat = await IndexedDBService.getUserMediaItems(
+      MediaType.PHOTO,
+      ThreatType.NON_THREAT
+    )
+    mediaItems.push(
+      ...userVideosThreat,
+      ...userVideosNonThreat,
+      ...userPhotosThreat,
+      ...userPhotosNonThreat
+    )
+
+    return mediaItems
   }
 }
 
