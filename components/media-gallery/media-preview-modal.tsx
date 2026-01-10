@@ -221,6 +221,7 @@ export function MediaPreviewModal({
               className="max-h-full max-w-full object-contain"
               controls
               autoPlay
+              muted
               playsInline
             />
           ) : (
