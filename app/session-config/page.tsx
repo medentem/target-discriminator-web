@@ -17,7 +17,7 @@ import Link from "next/link"
 function SessionConfigPageContent() {
   const router = useRouter()
   const isAndroid = useAndroidDetection()
-  const [includeVideos, setIncludeVideos] = useState(true)
+  const [includeVideos, setIncludeVideos] = useState(false)
   const [includePhotos, setIncludePhotos] = useState(true)
   const [durationMinutes, setDurationMinutes] = useState(1)
   
